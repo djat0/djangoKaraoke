@@ -32,14 +32,14 @@
 <body style="background-color: rgb(226, 212, 212);">
     <div class="">
         <div class="row">
-            <div class="col col-lg-10">
+            <div class="col col-lg-9">
                 <div id="player"></div>
                 <!-- <iframe width="1140" height="768" src="https://www.youtube.com/embed/6vnMmB1qp2Y"
                     title="YouTube video player" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen></iframe> -->
             </div>
-            <div class="col col-lg-2">
+            <div class="col col-lg-3">
                 <div class="row pt-3 mr-2">
                     <h6 class="text-center">Now Playing</h6>
                     <p id="nowPlaying"></p>
@@ -117,7 +117,7 @@
         //websocket code
         var song_queue = new Queue();
         const SonglistDiv = document.getElementById('songQueue')
-        const randomSongs = ['oHg5SJYRHA0', 'FTQbiNvZqaY', 'djV11Xbc914', 'aT5JaB5agSE', 'BaT2yyFh5q8', 'wj596Kxpil4']
+        const randomVids = ['oHg5SJYRHA0', 'FTQbiNvZqaY', 'djV11Xbc914', 'aT5JaB5agSE', 'BaT2yyFh5q8', 'wj596Kxpil4']
         let url = `ws://${window.location.host}/ws/songlyrics/`
 
         const wSocket = new WebSocket(url)
@@ -197,9 +197,14 @@
 
         // 4. The API will call this function when the video player is ready.
         function onPlayerReady(event) {
-            event.target.playVideo();
-            //player.loadVideoById({ videoId: song })
+            if (song_queue.isEmpty()) {
+                player.loadVideoById({ videoId: 'aT5JaB5agSE' })
+            }
+            else {
+                event.target.playVideo();
+            }
         }
+        //player.loadVideoById({ videoId: song })
 
         // 5. The API calls this function when the player's state changes.
         //    The function indicates that when playing a video (state=1),
@@ -226,7 +231,7 @@
                 color = "#FFFF00"; // ended = yellow
                 if (song_queue.isEmpty()) {
                     updateNowPlaying("")
-                    player.loadVideoById({ videoId: 'oHg5SJYRHA0' })
+                    player.loadVideoById({ videoId: randomVids[Math.floor(Math.random() * randomVids.length)] })
                 } else {
                     currentSong = song_queue.dequeue()
                     SonglistDiv.innerHTML = updatedSonglist()
