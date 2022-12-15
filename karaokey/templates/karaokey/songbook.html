@@ -48,7 +48,6 @@
 
         wSocket.onmessage = function (e) {
             let data = JSON.parse(e.data)
-            console.log('Data:', data)
 
             if (data.type === 'song_list') {
                 let songs = data.songs
@@ -57,7 +56,6 @@
                 cardContainer.innerHTML = returnCards(songs);
 
                 let cardBtns = document.querySelectorAll(".qBtn");
-                console.log(cardBtns)
                 for (let i = 0; i < cardBtns.length; i++) {
                     child = cardBtns[i]
                     child.addEventListener('click', function handleClick(event) {
@@ -66,24 +64,19 @@
                         imgParentDiv = parentDiv.parentNode
                         videoImgUrl = getVideoImgUrl(imgParentDiv)
                         queueSong = { 'videoData': videoData, 'videoImgUrl': videoImgUrl }
-                        console.log(videoData)
-                        console.log(videoImgUrl)
                         songSelectSubmit(queueSong)
-                        console.log('song queued successfully')
                     });
                 }
             }
 
         }
         function buttonCommand(value) {
-            console.log('button:', value)
             wSocket.send(JSON.stringify({
                 'button': value
             }))
         }
         function searchSubmit() {
             let searchInput = document.getElementById('songInput')
-            console.log(searchInput)
             wSocket.send(JSON.stringify({
                 'song_name': searchInput.value
             }))

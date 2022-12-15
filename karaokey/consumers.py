@@ -1,7 +1,8 @@
-from django.db import IntegrityError
+"""karaokey/karaokey/consumer.py"""
+import json
 from urllib.error import HTTPError
 from googleapiclient.discovery import build
-import json
+from django.db import IntegrityError
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from karaokey.models import Song
@@ -20,7 +21,6 @@ def filter_embeddable(songs):
     for song in songs['items']:
 
         video_id = song['id']['videoId']
-        print(f'video id: {video_id}')
 
         request = yt_api.videos().list(
             part="status",
@@ -34,13 +34,7 @@ def filter_embeddable(songs):
             print('Error response status code : {0}, reason : {1}'.format(
                 e.status_code, e.error_details))
 
-        # print(json.dumps(response, indent=2))
-
-        # print(type(response))
-        # print(type(response['items'][0]['status']['embeddable']))
-
         if response['items'][0]['status']['embeddable']:
-            # print('another embeddable')
             filtered_songs.append(song)
 
     return filtered_songs
@@ -78,21 +72,10 @@ class SongLyricsConsumer(WebsocketConsumer):
                 print('Error response status code : {0}, reason : {1}'.format(
                     e.status_code, e.error_details))
 
-            # print(type(response))
-
-            #print(json.dumps(response, indent=2))
-
-            # print('////////////////////embeddables///////////////////////////////')
             embeddable_songs = filter_embeddable(response)
-            # print(type(embeddable_songs))
-            # print(json.dumps(embeddable_songs, indent=2))
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
-                # {
-                #     'type': 'add_song',
-                #     'song_name': song_name
-                # },
                 {
                     'type': 'song_list',
                     'songs': embeddable_songs
@@ -103,10 +86,6 @@ class SongLyricsConsumer(WebsocketConsumer):
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
-                # {
-                #     'type': 'add_song',
-                #     'song_name': song_name
-                # },
                 {
                     'type': 'player_control',
                     'button': button
@@ -116,22 +95,11 @@ class SongLyricsConsumer(WebsocketConsumer):
             song_data = text_data_json['song_data']
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
-                # {
-                #     'type': 'add_song',
-                #     'song_name': song_name
-                # },
                 {
                     'type': 'save_queue_song',
                     'song_data': song_data
                 }
             )
-    # def add_song(self, event):
-    #     song_name = event['song_name']
-
-    #     self.send(text_data=json.dumps({
-    #         'type': 'add_song',
-    #         'song_name': song_name
-    #     }))
 
     def song_list(self, event):
         songs = event['songs']
